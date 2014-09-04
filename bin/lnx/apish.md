@@ -9,3 +9,10 @@ http://meijer.shoplocal.com/Meijer/BrowseByListing/BySearch/?StoreID=2465849&sea
 
 Carpenter Rd.
 http://meijer.shoplocal.com/Meijer/BrowseByListing/BySearch/?StoreID=2465897&searchtext=organic&x=0&y=0 
+
+##
+Whole Foods
+http://www.wholefoodsmarket.com/sales-flyer?store=6460 - Ann Arbor
+http://www.wholefoodsmarket.com/sales-flyer?store=6519 - Cranbrook
+
+
