@@ -1,0 +1,9 @@
+{
+    "name": "groceryguide",
+    "author": "lectrotext",
+    "require": {
+        "slim/slim": "2.*",
+        "nocarrier/hal": "dev-master",
+        "dibi/dibi": "2.2.2"
+    }
+}
