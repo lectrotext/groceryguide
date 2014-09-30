@@ -1,7 +1,7 @@
 <?php 
 phpinfo();
 
-/*require 'vendor/autoload.php';
+require 'vendor/autoload.php';
 date_default_timezone_set('America/Detroit');
 
 $options = array(

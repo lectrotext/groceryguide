@@ -1,0 +1,57 @@
+#XRAML 0.8
+
+title: Grocery Guide API
+baseUrl: http://api.organicgroceryguiide.org/
+/products:
+  get:
+  /{productsId}:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              schema: |
+              {
+                "description": "A food item: produce, dairy, meat",
+                "properties": {
+                  "id":      { "type": "number" },
+                  "code":    { "type": "number" },
+                  "name":    { "type": "string" },
+                  "variety": { "type": "string" },
+                  "size":    { "type": "string" },
+                  "asset":   { "type": "string" }
+                },
+                "required": [ "id", "name" ]
+              }
+/stores:
+  get:
+    queryParameters:
+      geo:
+        description: filter by latitude & longitude
+  /{storeId}
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              schema: |
+              {
+                "description": "Local Business",
+                "properties": {},
+                "required": []
+              }
+/items:
+    get:
+      queryParameters:
+        store:
+          description: filter items by store
+        amount:
+          description: filter by the desired amount (bag, each, per pound)
+        condition:
+          description: filter by the condition of the item (ripe, un ripe)
+        deal:
+          description: filter on whether the item is on sale
+    /{listingId}
+/users:
+    /{userId}
+/
