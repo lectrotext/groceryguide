@@ -44,18 +44,26 @@ $app->group('/api', function() use ($app) {
 
     $app->get('/produce(/:id)', function ($id = null) use ($app) {
         if ($app->request->isGet() && $id != null) {
-            echo "I will fetch produce item # $id.";
+            $result = $app->dep{'db'}->query("SELECT * FROM produce WHERE id = $id");
+            while ($row = $result->fetch()) {
+                var_dump($row);
+            }
         } elseif ($app->request->isGet() && $id == null) {
-            echo "I am going to fetch all the produce.";
+            $result = $app->dep{'db'}->query("SELECT * FROM produce");
+            while ($row = $result->fetch()) {
+                var_dump($row);
+            }
         }
     });
 
     $app->get('/stores(/:id)', function($id = null) use ($app) {
         if ($app->request->isGet() && $id != null) {
-            echo "I will fetch store # $id.";
+            $result = $app->dep{'db'}->query("SELECT * FROM stores WHERE id = $id");
+            while ($row = $result->fetch()) {
+                var_dump($row);
+            }
         } elseif ($app->request->isGet() && $id == null) {
-            $connection = $app->dep['db'];
-            $result = $connection->query("SELECT * FROM stores");
+            $result = $app->dep{'db'}->query("SELECT * FROM stores");
             while ($row = $result->fetch()) {
                 var_dump($row);
             }
