@@ -4,6 +4,7 @@
     "require": {
         "slim/slim": "2.*",
         "nocarrier/hal": "dev-master",
-        "dibi/dibi": "2.2.2"
+        "doctrine/dbal": "2.3.5",    
+        "pimple/pimple": "3.0.0"
     }
 }

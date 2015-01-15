@@ -4,23 +4,29 @@ require 'vendor/autoload.php';
 date_default_timezone_set('America/Detroit');
 
 use Nocarrier\Hal;
-use Dibi\DibiConnection;
-$options = array(
-    'driver'   => 'mysql',
-    'host'     => '127.0.0.1',
-    'username' => 'apiuser',
-    'password' => 'oggapiuser',
-    'database' => 'ogg',
-);
+use Pimple\Container;
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\DriverManager;
 
-$connection = new DibiConnection($options);
-$result = $connection->query('Select * from types');
+$dep = new Container();
 
-//foreach ($result as $n => $row) {
-//    var_dump($row);
-//}
+$dep['db'] = function ($c) {
+    $config = new Configuration();
+    $options = array(
+        'driver'   => 'pdo_mysql',
+        'host'     => '127.0.0.1',
+        'user' => 'apiuser',
+        'password' => 'oggapiuser',
+        'dbname' => 'ogg',
+    );
+    return DriverManager::getConnection($options, $config);
+}; 
+
 
 $app = new \Slim\Slim();
+
+$app->dep = $dep;
+
 $app->setName('Real Food Patrol API');
 
 $app->get('/', function() use ($app) {
@@ -48,7 +54,11 @@ $app->group('/api', function() use ($app) {
         if ($app->request->isGet() && $id != null) {
             echo "I will fetch store # $id.";
         } elseif ($app->request->isGet() && $id == null) {
-            echo "I am going to fetch all the stores.";
+            $connection = $app->dep['db'];
+            $result = $connection->query("SELECT * FROM stores");
+            while ($row = $result->fetch()) {
+                var_dump($row);
+            }
         }
     });
 
