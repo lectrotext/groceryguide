@@ -35,10 +35,19 @@ $app->get('/', function() use ($app) {
 
 $app->group('/api', function() use ($app) {
 	$app->get('/', function() use ($app) {
-        $hal = new Hal($app->request->getURL() . $app->request->getPath());
-        $hal->addLink('rfp:produce', $app->request->getURL() . $app->request->getPath() . '/produce');
-        $hal->addLink('rfp:stores', $app->request->getURL() . $app->request->getPath() . '/stores');	
-        $hal->addLink('rfp:items', $app->request->getURL() . $app->request->getPath() . '/items');	
+        $links = ["_links" => [
+            'self'      => $app->request->getURL() . $app->request->getPath(),
+            'rfp:items'   =>  ["href" => $app->request->getURL() . $app->request->getPath() . '/items/{id}', "templated"=> true],
+            'rfp:produce'   =>  ["href" => $app->request->getURL() . $app->request->getPath() . '/produce/{id}', "templated"=> true],
+            'rfp:stores'   =>  ["href" => $app->request->getURL() . $app->request->getPath() . '/stores/{id}', "templated"=> true]
+        ]];
+
+//        $hal = new Hal($app->request->getURL() . $app->request->getPath());
+//        $hal->addLink('rfp:produce', $app->request->getURL() . $app->request->getPath() . '/produce');
+//        $hal->addLink('rfp:stores', ["href => "$app->request->getURL() . $app->request->getPath() . '/stores', "templated"=> true];	
+ //       $hal->addLink('rfp:items', $app->request->getURL() . $app->request->getPath() . '/items');	
+
+        $hal = Hal::fromJson(json_encode($links));
 	    echo $hal->asJson();
     });
 
