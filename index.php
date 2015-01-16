@@ -68,14 +68,43 @@ $app->group('/api', function() use ($app) {
     $app->get('/stores(/:id)', function($id = null) use ($app) {
         if ($app->request->isGet() && $id != null) {
             $result = $app->dep{'db'}->query("SELECT * FROM stores WHERE id = $id");
-            while ($row = $result->fetch()) {
-                var_dump($row);
+
+            $row = $result->fetch();
+
+            $resource = '';
+            if (!empty($row)) {
+              $resource = $row;
             }
+
+            $links = ["_links" => [
+                'self'      => ["href" => $app->request->getURL() . $app->request->getPath()],
+                'index'   =>  ["href" => dirname($app->request->getURL() . $app->request->getPath())]
+            ]];
+            
+            $resource = array_merge($resource, $links);
+
+            $hal = Hal::fromJson(json_encode($resource));
+	        echo $hal->asJson();
+        
+            
         } elseif ($app->request->isGet() && $id == null) {
             $result = $app->dep{'db'}->query("SELECT * FROM stores");
+
+            $collection = null;
             while ($row = $result->fetch()) {
-                var_dump($row);
+                $collection[] = $row;
             }
+
+            $links = ["_links" => [
+                'self'      =>  ["href" => $app->request->getURL() . $app->request->getPath()],
+                'index'     =>  ["href" => dirname($app->request->getURL() . $app->request->getPath())],
+                'search'    =>  ["href" =>  $app->request->getURL() . $app->request->getPath() . "/{id}", "templated" => true]
+            ]];
+            
+            $resource = array_merge($collection, $links);
+
+            $hal = Hal::fromJson(json_encode($resource));
+	        echo $hal->asJson();
         }
     });
 
