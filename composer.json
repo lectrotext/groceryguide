@@ -5,6 +5,7 @@
         "slim/slim": "2.*",
         "nocarrier/hal": "dev-master",
         "doctrine/dbal": "2.3.5",    
-        "pimple/pimple": "3.0.0"
+        "pimple/pimple": "3.0.0",
+        "ql/uri-template": "dev-master"
     }
 }
