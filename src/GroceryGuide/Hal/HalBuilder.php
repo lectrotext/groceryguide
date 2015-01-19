@@ -1,6 +1,6 @@
 <?php
 
-use \Nocarrier\Hal;
+use Nocarrier\Hal;
 
 class HalBuilder
 {

@@ -5,24 +5,9 @@ date_default_timezone_set('America/Detroit');
 
 use Nocarrier\Hal;
 use Pimple\Container;
-use Doctrine\DBAL\Configuration;
-use Doctrine\DBAL\DriverManager;
+use GroceryGuide\DependencyProvider;
 
-$dep = new Container();
-
-$dep['db'] = function ($c) {
-    $config = new Configuration();
-    $options = array(
-        'driver'   => 'pdo_mysql',
-        'host'     => '127.0.0.1',
-        'user' => 'apiuser',
-        'password' => 'oggapiuser',
-        'dbname' => 'ogg',
-    );
-    return DriverManager::getConnection($options, $config);
-}; 
-
-
+$dep = new DependencyProvider(new Container());
 $app = new \Slim\Slim();
 
 $app->dep = $dep;
@@ -53,29 +38,33 @@ $app->group('/api', function() use ($app) {
     });
 
     $app->get('/produce(/:id)', function ($id = null) use ($app) {
+        $app->dep->addDB();
+        $resource = [];
+        $links = ["_links" => [
+            'self'      =>  ["href" => $app->request->getURL() . $app->request->getPath()],
+            'index'     =>  ["href" => dirname($app->request->getURL() . $app->request->getPath())],
+            'search'    =>  ["href" =>  $app->request->getURL() . $app->request->getPath() . "/{id}", "templated" => true]
+        ]];
+        
         if ($app->request->isGet() && $id != null) {
-            $result = $app->dep{'db'}->query("SELECT * FROM produce WHERE id = $id");
+            $result = $app->dep->di{'db'}->query("SELECT * FROM produce WHERE plu = $id");
+
             while ($row = $result->fetch()) {
-                var_dump($row);
+                $resource = $row;
             }
+
         } elseif ($app->request->isGet() && $id == null) {
-            $result = $app->dep{'db'}->query("SELECT * FROM produce LIMIT 100");
+            $result = $app->dep->di{'db'}->query("SELECT * FROM produce LIMIT 100");
 
             while ($row = $result->fetch()) {
-                $collection['produce'][] = $row;
+                $resource['produce'][] = $row;
             }
-
-            $links = ["_links" => [
-                'self'      =>  ["href" => $app->request->getURL() . $app->request->getPath()],
-                'index'     =>  ["href" => dirname($app->request->getURL() . $app->request->getPath())],
-                'search'    =>  ["href" =>  $app->request->getURL() . $app->request->getPath() . "/{id}", "templated" => true]
-            ]];
-
-            $resource = array_merge($collection, $links);
-
-            $hal = Hal::fromJson(json_encode($resource));
-	        echo $hal->asJson();
         }
+        
+        $resource = array_merge($resource, $links);
+
+        $hal = Hal::fromJson(json_encode($resource));
+	    echo $hal->asJson();
     });
 
     $app->get('/stores(/:id)', function($id = null) use ($app) {
