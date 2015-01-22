@@ -7,7 +7,7 @@ use Nocarrier\Hal;
 use Pimple\Container;
 use GroceryGuide\DependencyProvider;
 use GroceryGuide\Utils\Bitmasks;
-use GroceryGuide\QueryStore;
+use GroceryGuide\Services\Csa;
 
 $app = new \Slim\Slim();
 $app->dep =  new DependencyProvider(new Container());
@@ -134,9 +134,7 @@ $app->group('/api', function() use ($app) {
         ]];
 
         if ($app->request->isGet() && $id != null) {
-            $result = $app->dep->di{'db'}->query("SELECT * FROM csa WHERE id = $id");
-
-            $row = $result->fetch();
+            $row = Csa::csaById($app->dep->di{'db'}, $id);
 
             if (!empty($row)) {
                 $resource = $row;
@@ -146,7 +144,7 @@ $app->group('/api', function() use ($app) {
                 }
  
                 if (!empty($resource['delivery'])) {
-                    $deliveries = QueryStore::csaDelivery($app->dep->di{'db'}, (string) $resource['delivery']); 
+                    $deliveries = Csa::csaDelivery($app->dep->di{'db'}, (string) $resource['delivery']); 
                     $resource['delivery'] = array();
                     foreach ($deliveries as $delivery) {
                         $resource['delivery'][] = $delivery['location'];
@@ -166,7 +164,7 @@ $app->group('/api', function() use ($app) {
                 }
  
                 if (!empty($r['delivery'])) {
-                    $deliveries = QueryStore::csaDelivery($app->dep->di{'db'}, (string) $r['delivery']); 
+                    $deliveries = Csa::csaDelivery($app->dep->di{'db'}, (string) $r['delivery']); 
                     $r['delivery'] = array();
                     foreach ($deliveries as $delivery) {
                         $r['delivery'][] = $delivery['location'];

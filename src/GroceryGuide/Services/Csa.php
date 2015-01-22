@@ -1,8 +1,17 @@
 <?php
-namespace GroceryGuide;
+namespace GroceryGuide\Services;
 
-class QueryStore
+class Csa
 {
+
+    public static function csaById($conn, $id) {
+        $stmt = $conn->executeQuery('Select * FROM csa WHERE id = (?)',
+            array(array($id)),
+            array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+        );
+        return $stmt->fetch();
+    }
+
 
     public static function csaDelivery($conn, $deliveries)
     {
