@@ -8,6 +8,7 @@ use Pimple\Container;
 use GroceryGuide\DependencyProvider;
 use GroceryGuide\Utils\Bitmasks;
 use GroceryGuide\Services\Csa;
+use GroceryGuide\Controllers\Stores;
 
 $app = new \Slim\Slim();
 $app->dep =  new DependencyProvider(new Container());
@@ -65,6 +66,8 @@ $app->group('/api', function() use ($app) {
     $app->get('/stores(/:id)', function($id = null) use ($app) {
         $app->dep->addDB();
         $resource = [];
+        $stores = new Stores($app->dep->di{'db'});
+
         $links = ["_links" => [
             'self'      =>  ["href" => $app->request->getURL() . $app->request->getPath()],
             'index'     =>  ["href" => dirname($app->request->getURL() . $app->request->getPath())],
@@ -72,25 +75,36 @@ $app->group('/api', function() use ($app) {
         ]];
 
         if ($app->request->isGet() && $id != null) {
-            $result = $app->dep->di{'db'}->query("SELECT * FROM stores WHERE id = $id");
-
-            $row = $result->fetch();
-
-            if (!empty($row)) {
-              $resource = $row;
-            }
+            $resource = $stores->getStores($id);
         } elseif ($app->request->isGet() && $id == null) {
-            $result = $app->dep->di{'db'}->query("SELECT * FROM stores");
-
-            while ($row = $result->fetch()) {
-                $resource['stores'][] = $row;
-            }
+            $resource['stores'][] = $stores->getStores();
         }
             
         $resource = array_merge($resource, $links);
 
         $hal = Hal::fromJson(json_encode($resource));
 	    echo $hal->asJson();
+    });
+
+    $app->get('/stores/:page/:view', function ($page, $view) use ($app) {
+        $app->dep->addDB();
+        $resource = [];
+        $stores = new Stores($app->dep->di{'db'});
+        
+        $links = ["_links" => [
+            'self'      =>  ["href" => $app->request->getURL() . $app->request->getPath()],
+            'index'     =>  ["href" => dirname($app->request->getURL() . $app->request->getPath())],
+            'search'    =>  ["href" =>  $app->request->getURL() . $app->request->getPath() . "/{id}", "templated" => true]
+        ]];
+
+        if ($app->request->isGet()) {
+            $resource['stores'][] = $stores->getPaginatedStores($page, $view);
+        }
+        $resource = array_merge($resource, $links);
+
+        $hal = Hal::fromJson(json_encode($resource));
+	    echo $hal->asJson();
+
     });
 
     $app->get('/markets(/:id)', function($id = null) use ($app) {
