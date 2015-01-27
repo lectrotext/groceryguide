@@ -9,6 +9,7 @@ use GroceryGuide\DependencyProvider;
 use GroceryGuide\Utils\Bitmasks;
 use GroceryGuide\Services\Csa;
 use GroceryGuide\Controllers\Stores;
+use GroceryGuide\Controllers\Search;
 
 $app = new \Slim\Slim();
 $app->dep =  new DependencyProvider(new Container());
@@ -201,6 +202,16 @@ $app->group('/api', function() use ($app) {
             echo "Let me try to make a new item with your data.";
         }
     })->via('GET', 'POST');
+
+    $app->get('/search/:table/:args+', function ($table, $args) use ($app) {
+        $app->dep->addDB();
+        $search = new Search($app->dep->di{'db'}, $table, $args);
+
+        $resource = $search->getData(); 
+
+        $hal = Hal::fromJson(json_encode($resource));
+        echo $hal->asJson();       
+    });
 });
 $app->run();
 
