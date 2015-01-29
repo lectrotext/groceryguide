@@ -2,22 +2,34 @@
 namespace GroceryGuide\Controllers;
 
 use Doctrine\DBAL\Connection;
+use GroceryGuide\QueryFactory;
 
 class Search
 {
     private $db;
     
-    public function __construct(Connection $db, $table, array $args)
+    public function __construct(Connection $db, QueryFactory $qf, array $args = [])
     {
         $this->db = $db;
-        $this->table = (string) $table;
-        $this->args = $this->setCriteria($args);
+        $this->qf = $qf;
+        $this->args = $args;
     }
 
     public function getData()
     {
-        $result = $this->db->query("SELECT * FROM ".  $this->table ." WHERE state like '". $this->args['state'] . "' LIMIT 0, 100");
-        return $result->fetchAll();
+        if (empty($this->args)) {
+            $result = $this->db->query($this->qf->selectFromTable());
+            $result = $result->fetchAll();
+        } else {
+            $stmt = $this->db->prepare($this->qf->selectFromTableWhereLike(key($this->args)));
+            foreach ($this->args as $column => $value) {
+                $stmt->bindValue("value", '%' . $value . '%');
+            }
+            $stmt->execute();
+            $result = $stmt->fetchAll();
+
+        }
+        return $result;
     }   
 
     public function getPaginatedData($page, $view)
@@ -27,14 +39,13 @@ class Search
         return $result->fetchAll();
     }  
 
-    private function setCriteria(array $args)
-    {
-        $return = array();
-        foreach ($args as $arg) {
-            $params = explode(':',$arg);
-            $return[$params[0]] = $params[1]; 
-        }
 
-        return $return;
+    /**
+    *
+    */
+    public function serializeCriteria ()
+    {
+        $string = "";
+
     }
 }

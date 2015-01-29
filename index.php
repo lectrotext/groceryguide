@@ -10,6 +10,7 @@ use GroceryGuide\Utils\Bitmasks;
 use GroceryGuide\Services\Csa;
 use GroceryGuide\Controllers\Stores;
 use GroceryGuide\Controllers\Search;
+use GroceryGuide\QueryFactory;
 
 $app = new \Slim\Slim();
 $app->dep =  new DependencyProvider(new Container());
@@ -203,9 +204,12 @@ $app->group('/api', function() use ($app) {
         }
     })->via('GET', 'POST');
 
-    $app->get('/search/:table/:args+', function ($table, $args) use ($app) {
+    $app->get('/search/:table', function ($table) use ($app) {
         $app->dep->addDB();
-        $search = new Search($app->dep->di{'db'}, $table, $args);
+        $args = $app->request->get();
+        $qf = new QueryFactory($table);
+
+        $search = new Search($app->dep->di{'db'}, $qf, $args);
 
         $resource = $search->getData(); 
 
